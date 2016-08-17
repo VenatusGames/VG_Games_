@@ -2,8 +2,8 @@
 using System.Collections;
 
 public class Rotate : MonoBehaviour {
-
+	Vector3 vec = Vector3.one;
 	void Update () {
-		transform.Rotate(new Vector3(1,1,1) * 5);
+		transform.Rotate(vec * 5);
 	}
 }
