@@ -1,2 +1,2 @@
 Testing out git
-this is sean does this work
+this is sean does this work. look i  can edit though
