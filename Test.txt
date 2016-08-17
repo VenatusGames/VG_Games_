@@ -1,6 +1,2 @@
 Testing out git
-<<<<<<< HEAD
-gsefgseg
-=======
-this is sean does this work. look i  can edit though
->>>>>>> refs/remotes/origin/master
+
