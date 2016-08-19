@@ -48,6 +48,8 @@
      <Compile Include="Assets\Cast.cs" />
      <Compile Include="Assets\Curver.cs" />
      <Compile Include="Assets\Fish.cs" />
+     <Compile Include="Assets\FishDatabase.cs" />
+     <Compile Include="Assets\FishSpawner.cs" />
      <Compile Include="Assets\RenderLine.cs" />
      <Compile Include="Assets\WaterPhysics.cs" />
  <Reference Include="UnityEngine.UI">
