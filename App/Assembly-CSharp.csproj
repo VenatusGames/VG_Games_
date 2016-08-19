@@ -46,6 +46,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Cast.cs" />
+     <Compile Include="Assets\Curver.cs" />
+     <Compile Include="Assets\Fish.cs" />
+     <Compile Include="Assets\RenderLine.cs" />
      <Compile Include="Assets\WaterPhysics.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

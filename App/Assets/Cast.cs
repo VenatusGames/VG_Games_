@@ -25,6 +25,12 @@ public class Cast : MonoBehaviour {
 				startTime = Time.time;
 				castStarted = true;
 				break;
+			case TouchPhase.Stationary:
+				if(castStarted){
+					beginPos = Input.touches[0].position;
+					startTime = Time.time;
+				}
+				break;
 			case TouchPhase.Ended:
 					StartCast();
 				break;
@@ -54,6 +60,7 @@ public class Cast : MonoBehaviour {
 					lastSpeed = (lastSpeed / maxPower) * 100;
 					Vector2 swipe = beginPos - endPos;
 					angle = Vector2.Angle(Vector2.right,swipe);
+					angle = Mathf.Clamp(Vector2.Angle(Vector2.right,swipe),45,135);
 					ThrowFloat(angle,Mathf.RoundToInt(lastSpeed));
 				}
 			}else{
@@ -74,20 +81,22 @@ public class Cast : MonoBehaviour {
 	}
 
 	void ThrowFloat(float angle, int power){
+		power = Mathf.Clamp(power,10,90);
 		Destroy(currentLure);
 		currentLure = (GameObject)Instantiate(floatPrefab,instObj.position,floatPrefab.transform.rotation);
 		ConfigurableJoint joint = instObj.GetComponent<ConfigurableJoint>();
 		Rigidbody lureRigid = currentLure.GetComponent<Rigidbody>();
 		joint.connectedBody = lureRigid;
 		currentLure.transform.Rotate(new Vector3(0,angle,0));
-		lureRigid.AddRelativeForce(new Vector3(0,10,-power * 5));
+		lureRigid.AddRelativeForce(new Vector3(0,power*2,-power * 3));
+		FindObjectOfType<RenderLine>().lure = currentLure;
 	}
 
 	void OnGUI(){
-		GUI.Label(new Rect(0,0,200,200),beginPos.ToString());
-		GUI.Label(new Rect(0,20,200,200),endPos.ToString());
-		GUI.Label(new Rect(0,40,200,200),lastSpeed.ToString());
-		GUI.Label(new Rect(0,60,200,200),startTime.ToString());
-		GUI.Label(new Rect(0,80,200,200),angle.ToString());
+		GUI.Label(new Rect(0,0,200,200),"Start Pos: " +beginPos.ToString());
+		GUI.Label(new Rect(0,20,200,200),"End Pos: " +endPos.ToString());
+		GUI.Label(new Rect(0,40,200,200),"Speed: " +lastSpeed.ToString());
+		GUI.Label(new Rect(0,60,200,200),"Start Time: " +startTime.ToString());
+		GUI.Label(new Rect(0,80,200,200),"Angle in degrees: " +angle.ToString());
 	}
 }
