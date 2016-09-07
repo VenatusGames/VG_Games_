@@ -45,13 +45,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Cast.cs" />
-     <Compile Include="Assets\Curver.cs" />
-     <Compile Include="Assets\Fish.cs" />
-     <Compile Include="Assets\FishDatabase.cs" />
-     <Compile Include="Assets\FishSpawner.cs" />
-     <Compile Include="Assets\RenderLine.cs" />
-     <Compile Include="Assets\WaterPhysics.cs" />
+     <Compile Include="Assets\Scripts\Cast.cs" />
+     <Compile Include="Assets\Scripts\Curver.cs" />
+     <Compile Include="Assets\Scripts\DetectHover.cs" />
+     <Compile Include="Assets\Scripts\Fish.cs" />
+     <Compile Include="Assets\Scripts\FishDatabase.cs" />
+     <Compile Include="Assets\Scripts\FishList.cs" />
+     <Compile Include="Assets\Scripts\FishPedia.cs" />
+     <Compile Include="Assets\Scripts\FishPediaListing.cs" />
+     <Compile Include="Assets\Scripts\FishSpawner.cs" />
+     <Compile Include="Assets\Scripts\FishpediaFish.cs" />
+     <Compile Include="Assets\Scripts\Hotspot.cs" />
+     <Compile Include="Assets\Scripts\Inventory.cs" />
+     <Compile Include="Assets\Scripts\ItemDatabase.cs" />
+     <Compile Include="Assets\Scripts\Items.cs" />
+     <Compile Include="Assets\Scripts\KeepFloatVisible.cs" />
+     <Compile Include="Assets\Scripts\PopupController.cs" />
+     <Compile Include="Assets\Scripts\RenderLine.cs" />
+     <Compile Include="Assets\Scripts\Shop.cs" />
+     <Compile Include="Assets\Scripts\ShopListing.cs" />
+     <Compile Include="Assets\Scripts\WaterMovement.cs" />
+     <Compile Include="Assets\Scripts\WaterPhysics.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
