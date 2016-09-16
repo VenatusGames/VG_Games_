@@ -32,7 +32,7 @@ public class Cast : MonoBehaviour {
 
 	public bool hasCasted;
 
-	public DetectHover fishPediaButton,shopButton;
+	public List<DetectHover> hovers;
 	void Update(){
 		if(Application.isMobilePlatform){
 			if(Input.touches.Length > 1 || Input.touches.Length < 1) return;
@@ -58,7 +58,13 @@ public class Cast : MonoBehaviour {
 			case TouchPhase.Ended:
 				if(castStarted){
 					if(beginPos.y < Input.touches[0].position.y){
-						if(fishPediaButton.isDown || shopButton.isDown){
+						bool hoverCheck = true;
+						foreach (var hover in hovers) {
+							if(hover.isDown){
+								hoverCheck = false;
+							}
+						}
+						if(hoverCheck){
 							castStarted = false;
 						}else{
 							poleAnim.SetBool("cast",true);
@@ -87,7 +93,13 @@ public class Cast : MonoBehaviour {
 			if(Input.GetMouseButtonUp(0)){
 				if(castStarted){
 					if(beginPos.y < Input.mousePosition.y){
-						if(fishPediaButton.isDown || shopButton.isDown){
+						bool hoverCheck = false;
+						foreach (var hover in hovers) {
+							if(hover.isDown){
+								hoverCheck = true;
+							}
+						}
+						if(hoverCheck){
 							castStarted = false;
 						}else{
 							poleAnim.SetBool("cast",true);
@@ -95,8 +107,7 @@ public class Cast : MonoBehaviour {
 						}
 					}
 				}
-				else
-					if(!reelStarted)
+				else if(!reelStarted)
 						StartReel();
 			}
 		}
@@ -169,6 +180,9 @@ public class Cast : MonoBehaviour {
 				poleAnim.SetBool("reel",true);
 				poleAnim.SetBool("cast",false);
 				CancelInvoke();
+				if(curReelCoroutine != null){
+					StopCoroutine(curReelCoroutine);
+				}
 				curReelCoroutine = StartCoroutine(ReelIn(canCatch));
 			}
 		}else{
@@ -177,6 +191,9 @@ public class Cast : MonoBehaviour {
 				poleAnim.SetBool("cast",false);
 				poleAnim.SetBool("reel",true);
 				CancelInvoke();
+				if(curReelCoroutine != null){
+					StopCoroutine(curReelCoroutine);
+				}
 				curReelCoroutine = StartCoroutine(ReelIn(canCatch));
 			}
 		}
@@ -184,7 +201,7 @@ public class Cast : MonoBehaviour {
 
 	void StartCatchLoop(){
 		if(Random.Range(0,4) == 1 && !catchStarted){
-			curCatchCoroutine = StartCoroutine(CatchMinigame(fishDatabase.fish[Random.Range(0,fishDatabase.fish.Count)]));
+			curCatchCoroutine = StartCoroutine(CatchMinigame(fishDatabase.GetRandomFish()));
 		}
 		if(!isInHotspot)
 			Invoke("StartCatchLoop",Random.Range(1f,2f));
@@ -224,10 +241,13 @@ public class Cast : MonoBehaviour {
 	IEnumerator ReelIn(bool didCatch){
 		if(curCatchCoroutine != null)
 			StopCoroutine(curCatchCoroutine);
+		if(FindObjectOfType<MainMenu>().isOpen){
+			yield break;
+		}
 		FindObjectOfType<WaterPhysics>().waterLevel = 0.6f;
 		reelStarted = true;
-		float step = 3 * Time.deltaTime;
 		while(Vector3.Distance(currentLure.transform.position,new Vector3(instObj.position.x,1.14f,instObj.gameObject.transform.position.z)) > 0.1f){
+			float step = 3 * Time.deltaTime;
 			currentLure.transform.position = Vector3.MoveTowards(currentLure.transform.position,new Vector3(instObj.gameObject.transform.position.x,1.14f,instObj.gameObject.transform.position.z),step);
 			yield return new WaitForEndOfFrame();
 		}

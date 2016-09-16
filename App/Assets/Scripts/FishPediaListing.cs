@@ -3,16 +3,21 @@ using System.Collections;
 using UnityEngine.UI;
 public class FishPediaListing : MonoBehaviour {
 	public bool isCaught;
-	public Text textBox;
 	public FishpediaFish fish;
 
-	public void UpdateListing(float weight, float length){
+	public void UpdateListing(float weight){
 		if(isCaught){
 			fish.weight = weight;
-			fish.length = length;
-			textBox.text = "Name: "+fish.fishName+" | Best Weight: "+fish.weight+" | Best Length: "+fish.length;
 		}else{
-			textBox.text = "Name: ??? | Best Weight: ??? | Best Length: ???";
+			
+		}
+	}
+
+	void Update(){
+		if(GetComponentInChildren<DetectHover>().isDown){
+			GetComponentInChildren<MeshRenderer>().transform.parent.transform.Rotate(0,1,0);
+		}else{
+			GetComponentInChildren<MeshRenderer>().transform.parent.transform.localEulerAngles = new Vector3(0,0,0);
 		}
 	}
 }

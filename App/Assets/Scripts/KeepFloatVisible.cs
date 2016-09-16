@@ -3,29 +3,26 @@ using System.Collections;
 
 public class KeepFloatVisible : MonoBehaviour {
 	public MeshRenderer rod;
+	Cast cast;
+	public Material transparent,opaque;
 	Ray towardsPlayer;
 
 	void Start(){
 		rod = GameObject.FindGameObjectWithTag("Rod").GetComponent<MeshRenderer>();
+		cast = FindObjectOfType<Cast>();
 	}
 
 	void Update(){
 		towardsPlayer = new Ray(this.transform.position,(Camera.main.transform.position-transform.position));
 		RaycastHit hit = new RaycastHit();
 		if(Physics.Raycast(towardsPlayer, out hit)){
-			if(hit.collider.gameObject.tag == "Rod"){
-				Color old = rod.material.color;
-				old.a = 0.5f;
-				rod.material.color = old;
+			if(hit.collider.gameObject.tag == "Rod" && !cast.reelStarted){
+				rod.material = transparent;
 			}else{
-				Color old = rod.material.color;
-				old.a = 1f;
-				rod.material.color = old;
+				rod.material = opaque;
 			}
 		}else{
-			Color old = rod.material.color;
-			old.a = 1f;
-			rod.material.color = old;
+			rod.material = opaque;
 		}
 	}
 

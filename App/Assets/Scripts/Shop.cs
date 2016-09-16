@@ -34,6 +34,10 @@ public class Shop : MonoBehaviour {
 				item.colors = oldBlock;
 			}
 		}
+		ChangeTab();
+		if(!contentRect.gameObject.activeSelf){
+			contentRect.position = Vector3.zero;
+		}
 		if(isOpen && !FindObjectOfType<Cast>().hasCasted)
 			FindObjectOfType<Cast>().canCast = false;
 	}

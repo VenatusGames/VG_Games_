@@ -1,21 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System.Collections.Generic;
 public class FishSpawner : MonoBehaviour {
-	public int maxFish;
-	public int curFish;
+	List<Fish> fish;
 
-	public GameObject fishPrefab;
 	void Start(){
-		SpawnLoop();
+		fish = FindObjectOfType<FishDatabase>().fish;
 	}
 
-	void SpawnLoop(){
-		if(curFish < maxFish && Random.Range(0,2) == 1){
-			Vector3 pos = new Vector3(Random.Range(-2f,4f),1.15f,Random.Range(2f,9f));
-			Instantiate(fishPrefab,pos,fishPrefab.transform.rotation);
-			curFish++;
+	public Fish GetRandomFish(){
+		List<Fish> weightedArray = new List<Fish>();
+		foreach (Fish item in fish) {
+			for (int i = 0; i < item.rarity; i++) {
+				weightedArray.Add(item);
+			}
 		}
-		Invoke("SpawnLoop",2);
+		return weightedArray[Random.Range(0,weightedArray.Count)];
 	}
 }

@@ -5,11 +5,10 @@ using System.Collections;
 public class FishpediaFish {
 
 	public string fishName;
-	public float weight,length;
+	public float weight;
 
-	public FishpediaFish(string _fishName, float _weight, float _length){
+	public FishpediaFish(string _fishName, float _weight){
 		fishName = _fishName;
 		weight = _weight;
-		length = _length;
 	}
 }

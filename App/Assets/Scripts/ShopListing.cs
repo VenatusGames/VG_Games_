@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+
+[ExecuteInEditMode]
 public class ShopListing : MonoBehaviour {
 	public enum ItemChoice
 	{
@@ -18,21 +20,36 @@ public class ShopListing : MonoBehaviour {
 		switch (type) {
 
 		case ItemChoice.bait:
-			BaitType curB = FindObjectOfType<ItemDatabase>().baits[itemID];
-			nameText.text = curB.name;
-			priceText.text = curB.price.ToString() + "g";
+			if(itemID >= 0 && itemID < FindObjectOfType<ItemDatabase>().baits.Count){
+				BaitType curB = FindObjectOfType<ItemDatabase>().baits[itemID];
+				nameText.text = curB.name;
+				priceText.text = curB.price.ToString() + "g";
+			}else{
+				nameText.text = "";
+				priceText.text = "";
+			}
 			break;
 
-		case ItemChoice.lure: 
-			LureType curL = FindObjectOfType<ItemDatabase>().lures[itemID];
-			nameText.text = curL.name;
-			priceText.text = curL.price.ToString() + "g";
+		case ItemChoice.lure:
+			if(itemID >= 0 && itemID < FindObjectOfType<ItemDatabase>().lures.Count){
+				LureType curL = FindObjectOfType<ItemDatabase>().lures[itemID];
+				nameText.text = curL.name;
+				priceText.text = curL.price.ToString() + "g";
+			}else{
+				nameText.text = "";
+				priceText.text = "";
+			}
 			break;
 
-		case ItemChoice.rod: 
-			RodType curR = FindObjectOfType<ItemDatabase>().rods[itemID];
-			nameText.text = curR.name;
-			priceText.text = curR.price.ToString() + "g";
+		case ItemChoice.rod:
+			if(itemID >= 0 && itemID < FindObjectOfType<ItemDatabase>().rods.Count){
+				RodType curR = FindObjectOfType<ItemDatabase>().rods[itemID];
+				nameText.text = curR.name;
+				priceText.text = curR.price.ToString() + "g";
+			}else{
+				nameText.text = "";
+				priceText.text = "";
+			}
 			break;
 
 		default:
@@ -74,5 +91,9 @@ public class ShopListing : MonoBehaviour {
 		default:
 			break;
 		}
+	}
+
+	void OnValidate(){
+		Start();
 	}
 }

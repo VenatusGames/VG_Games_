@@ -16,7 +16,7 @@ public class Hotspot : MonoBehaviour {
 			GetComponent<ParticleSystem>().Stop();
 			GetComponent<CapsuleCollider>().enabled = false;
 		}else if(!moving){
-			Vector3 pos = new Vector3(Random.Range(-2.86f,3f),1.15f,Random.Range(5f,8f));
+			Vector3 pos = new Vector3(Random.Range(-6.62f,6.62f),1.15f,Random.Range(5f,11.5f));
 			transform.position = pos;
 			moving = true;
 		}else if(moving){
@@ -25,7 +25,7 @@ public class Hotspot : MonoBehaviour {
 			GetComponent<ParticleSystem>().Play();
 			GetComponent<CapsuleCollider>().enabled = true;
 		}
-		Invoke("UpdateHotSpotPos",Random.Range(5f,15f));
+		Invoke("UpdateHotSpotPos",Random.Range(10f,15f));
 	}
 
 }

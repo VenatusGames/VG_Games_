@@ -5,7 +5,8 @@ public class PopupController : MonoBehaviour{
 
 	public GameObject uiPopup;
 	public GameObject fishPopupObject;
-	public Text popupFishName,popupFishWeight,popupFishLength,popupFishPrice;
+	public Text popupFishName,popupFishWeight,popupFishPrice;
+	public Text xpText;
 	public Image popupBorder;
 	private GameObject currentFish;
 
@@ -22,17 +23,27 @@ public class PopupController : MonoBehaviour{
 		popupFishName.text = fish.fishName;
 		popupBorder.color = fish.rarityColour;
 		float weight = Round(Random.Range(fish.minWeight,fish.maxWeight),2);
-		float length = Round(Random.Range(fish.minLength,fish.maxLength),2);
 		float weightDiffernce = (weight-fish.baseWeight);
-		float lengthDiffernce = (length-fish.baseLength);
-		print(lengthDiffernce.ToString());
 		print(weightDiffernce.ToString());
-		int price = (int)(fish.basePrice + (lengthDiffernce + weightDiffernce));
+		int price = Mathf.RoundToInt(fish.basePrice + (weightDiffernce));
 		popupFishWeight.text = "Weight: "+weight.ToString()+ "Kg";
-		popupFishLength.text = "Length: "+length.ToString()+ "M";
 		popupFishPrice.text = "Price: " + price.ToString() + "g";
 		FindObjectOfType<Inventory>().money += price;
-		FindObjectOfType<FishPedia>().fishList.fishList.Add(new FishpediaFish(fish.fishName,weight,length));
+		FindObjectOfType<FishPedia>().fishList.fishList.Add(new FishpediaFish(fish.fishName,weight));
+		StartCoroutine(FindObjectOfType<ExperienceSystem>().AddXP((int)(fish.baseXP + weightDiffernce)));
+		xpText.text = "+"+(int)(fish.baseXP + weightDiffernce) + "xp";
+		StartCoroutine(FadeOut());
+	}
+
+	IEnumerator FadeOut(){
+		Color old = xpText.color;
+		old.a = 1;
+		xpText.color = old;
+		for (int i = 0; i < 100; i++) {
+			old.a -= 0.01f;
+			xpText.color = old;
+			yield return new WaitForEndOfFrame();
+		}
 	}
 
 	public void ClosePopup(){

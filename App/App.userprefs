@@ -1,13 +1,15 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Inventory.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\FishPedia.cs">
     <Files>
-      <File FileName="Assets\Scripts\Cast.cs" Line="37" Column="28" />
-      <File FileName="Assets\Scripts\WaterPhysics.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\ShopListing.cs" Line="36" Column="10" />
-      <File FileName="Assets\Scripts\Shop.cs" Line="77" Column="1" />
-      <File FileName="Assets\Scripts\Inventory.cs" Line="23" Column="58" />
-      <File FileName="Assets\Scripts\Items.cs" Line="14" Column="2" />
+      <File FileName="Assets\ExperienceSystem.cs" Line="46" Column="15" />
+      <File FileName="Assets\Scripts\FishPedia.cs" Line="52" Column="97" />
+      <File FileName="Assets\Scripts\SaveSystems.cs" Line="6" Column="14" />
+      <File FileName="Assets\Editor\FishSpawnerEditor.cs" Line="15" Column="20" />
+      <File FileName="Assets\Scripts\FishDatabase.cs" Line="32" Column="5" />
+      <File FileName="Assets\Scripts\ReadOnlyDrawer.cs" Line="25" Column="4" />
+      <File FileName="Assets\Scripts\PopupController.cs" Line="34" Column="21" />
+      <File FileName="Assets\Scripts\FishPediaListing.cs" Line="20" Column="86" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
