@@ -1,20 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Linq;
 
 [ExecuteInEditMode]
 public class ShopListing : MonoBehaviour {
 	public enum ItemChoice
 	{
 		bait,
-		lure,
+		bobber,
 		rod
 	}
 	public bool canBuy;
 	public ItemChoice type;
 	public int itemID;
 
-	public Text nameText,priceText;
+	public Text nameText,priceText,descText;
 
 	void Start() {
 		switch (type) {
@@ -30,14 +31,16 @@ public class ShopListing : MonoBehaviour {
 			}
 			break;
 
-		case ItemChoice.lure:
-			if(itemID >= 0 && itemID < FindObjectOfType<ItemDatabase>().lures.Count){
-				LureType curL = FindObjectOfType<ItemDatabase>().lures[itemID];
+		case ItemChoice.bobber:
+			if(itemID >= 0 && itemID < FindObjectOfType<ItemDatabase>().bobbers.Count){
+				BobberType curL = FindObjectOfType<ItemDatabase>().bobbers[itemID];
 				nameText.text = curL.name;
 				priceText.text = curL.price.ToString() + "g";
+				descText.text = "";
 			}else{
 				nameText.text = "";
 				priceText.text = "";
+				descText.text = "";
 			}
 			break;
 
@@ -46,14 +49,39 @@ public class ShopListing : MonoBehaviour {
 				RodType curR = FindObjectOfType<ItemDatabase>().rods[itemID];
 				nameText.text = curR.name;
 				priceText.text = curR.price.ToString() + "g";
+				descText.text = "";
 			}else{
 				nameText.text = "";
 				priceText.text = "";
+				descText.text = "";
 			}
 			break;
 
 		default:
 			break;
+		}
+	}
+
+	void Update(){
+		if(type == ItemChoice.rod){
+			Inventory inv = FindObjectOfType<Inventory>();
+			if(inv.rods.Exists(x => x.ID == itemID)){
+				if(inv.rods.Find(x => x.ID == itemID).isEquipped){
+					priceText.text = "Equipped";
+				}else{
+					priceText.text = "Owned";
+				}
+			}
+		}
+		if(type == ItemChoice.bobber){
+			Inventory inv = FindObjectOfType<Inventory>();
+			if(inv.bobbers.Exists(x => x.ID == itemID)){
+				if(inv.bobbers.Find(x => x.ID == itemID).isEquipped){
+					priceText.text = "Equipped";
+				}else{
+					priceText.text = "Owned";
+				}
+			}
 		}
 	}
 
@@ -72,20 +100,22 @@ public class ShopListing : MonoBehaviour {
 			}
 			break;
 
-		case ItemChoice.lure: 
-			LureType curL = FindObjectOfType<ItemDatabase>().lures[itemID];
-			if((curL.price * amount) < money){
-				FindObjectOfType<Shop>().BuyLure(curL,amount);
-			}else{
-				int maxAmount = Mathf.FloorToInt(money/curL.price);
-				maxAmount = Mathf.Clamp(maxAmount,0,amount);
-				FindObjectOfType<Shop>().BuyLure(curL,maxAmount);
+		case ItemChoice.bobber: 
+			BobberType curL = FindObjectOfType<ItemDatabase>().bobbers[itemID];
+			if(FindObjectOfType<Inventory>().bobbers.Exists(x => x.ID == curL.ID)){
+				FindObjectOfType<RodSwitcher>().SwitchBobber(curL);
+			}else if(money > curL.price){
+				FindObjectOfType<Shop>().BuyLure(curL);
 			}
 			break;
 
 		case ItemChoice.rod: 
 			RodType curR = FindObjectOfType<ItemDatabase>().rods[itemID];
-			FindObjectOfType<Shop>().BuyRod(curR);
+			if(FindObjectOfType<Inventory>().rods.Exists(x => x.ID == curR.ID)){
+				FindObjectOfType<RodSwitcher>().SwitchRod(curR);
+			}else if(money > curR.price){
+				FindObjectOfType<Shop>().BuyRod(curR);
+			}
 			break;
 
 		default:

@@ -1,15 +1,18 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\FishPedia.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\FishDatabase.cs">
     <Files>
-      <File FileName="Assets\ExperienceSystem.cs" Line="46" Column="15" />
-      <File FileName="Assets\Scripts\FishPedia.cs" Line="52" Column="97" />
-      <File FileName="Assets\Scripts\SaveSystems.cs" Line="6" Column="14" />
-      <File FileName="Assets\Editor\FishSpawnerEditor.cs" Line="15" Column="20" />
-      <File FileName="Assets\Scripts\FishDatabase.cs" Line="32" Column="5" />
-      <File FileName="Assets\Scripts\ReadOnlyDrawer.cs" Line="25" Column="4" />
-      <File FileName="Assets\Scripts\PopupController.cs" Line="34" Column="21" />
-      <File FileName="Assets\Scripts\FishPediaListing.cs" Line="20" Column="86" />
+      <File FileName="Assets\Scripts\BaitSelector.cs" Line="43" Column="1" />
+      <File FileName="Assets\Scripts\MapController.cs" Line="58" Column="2" />
+      <File FileName="Assets\Scripts\MapButton.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\SaveSystems.cs" Line="48" Column="33" />
+      <File FileName="Assets\Scripts\ExperienceSystem.cs" Line="44" Column="39" />
+      <File FileName="Assets\Scripts\FishDatabase.cs" Line="40" Column="15" />
+      <File FileName="Assets\Scripts\Items.cs" Line="10" Column="30" />
+      <File FileName="Assets\Scripts\Cast.cs" Line="280" Column="73" />
+      <File FileName="Assets\Scripts\RodSwitcher.cs" Line="16" Column="72" />
+      <File FileName="Assets\Scripts\FishPediaListing.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Fish.cs" Line="14" Column="23" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

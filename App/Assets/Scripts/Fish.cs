@@ -6,11 +6,19 @@ public class Fish {
 	
 	public GameObject fishPrefab;
 	public string fishName;
-	public float minBobTime,maxBobTime,minCatchTime,maxCatchTime;
+	[Range(0,1)]
+	public float catchChance;
 	public Color rarityColour;
 	public float minWeight,maxWeight;
 	public float baseWeight;
 	public int basePrice;
 	public int baseXP;
+	[Range(0,100)]
 	public int rarity;
+	public int rarityLevel;
+	public string bio;
+	public bool isJunk;
+	public MapController.MapType map;
+	public int strength;
+	public int width;
 }

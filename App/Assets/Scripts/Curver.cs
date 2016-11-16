@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public static class Curver {
 	//arrayToCurve is original Vector3 array, smoothness is the number of interpolations. 
-	public static Vector3[] MakeSmoothCurve(Vector3[] arrayToCurve,float smoothness){
+	public static List<Vector3> MakeSmoothCurve(List<Vector3> arrayToCurve,float smoothness){
+		
 		List<Vector3> points;
 		List<Vector3> curvedPoints;
 		int pointsLength = 0;
@@ -12,7 +13,7 @@ public static class Curver {
 
 		if(smoothness < 1.0f) smoothness = 1.0f;
 
-		pointsLength = arrayToCurve.Length;
+		pointsLength = arrayToCurve.Count;
 
 		curvedLength = (pointsLength*Mathf.RoundToInt(smoothness))-1;
 		curvedPoints = new List<Vector3>(curvedLength);
@@ -31,6 +32,6 @@ public static class Curver {
 
 			curvedPoints.Add(points[0]);
 		}
-		return(curvedPoints.ToArray());
+		return(curvedPoints);
 	}
 }

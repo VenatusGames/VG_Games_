@@ -45,10 +45,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\ExperienceSystem.cs" />
+     <Compile Include="Assets\Scripts\BaitIdentifier.cs" />
+     <Compile Include="Assets\Scripts\BaitSelector.cs" />
      <Compile Include="Assets\Scripts\Cast.cs" />
      <Compile Include="Assets\Scripts\Curver.cs" />
      <Compile Include="Assets\Scripts\DetectHover.cs" />
+     <Compile Include="Assets\Scripts\DevTools.cs" />
+     <Compile Include="Assets\Scripts\ExperienceSystem.cs" />
      <Compile Include="Assets\Scripts\Fish.cs" />
      <Compile Include="Assets\Scripts\FishDatabase.cs" />
      <Compile Include="Assets\Scripts\FishList.cs" />
@@ -58,18 +61,40 @@
      <Compile Include="Assets\Scripts\FishpediaFish.cs" />
      <Compile Include="Assets\Scripts\Hotspot.cs" />
      <Compile Include="Assets\Scripts\Inventory.cs" />
+     <Compile Include="Assets\Scripts\InventoryUI.cs" />
      <Compile Include="Assets\Scripts\ItemDatabase.cs" />
      <Compile Include="Assets\Scripts\Items.cs" />
      <Compile Include="Assets\Scripts\KeepFloatVisible.cs" />
+     <Compile Include="Assets\Scripts\LevelIdentifier.cs" />
+     <Compile Include="Assets\Scripts\LevelReward.cs" />
      <Compile Include="Assets\Scripts\MainMenu.cs" />
+     <Compile Include="Assets\Scripts\MapButton.cs" />
+     <Compile Include="Assets\Scripts\MapController.cs" />
+     <Compile Include="Assets\Scripts\MissionController.cs" />
+     <Compile Include="Assets\Scripts\MissionDatabase.cs" />
+     <Compile Include="Assets\Scripts\MissionUI.cs" />
      <Compile Include="Assets\Scripts\PopupController.cs" />
      <Compile Include="Assets\Scripts\ReadOnlyDrawer.cs" />
+     <Compile Include="Assets\Scripts\ReelMovement.cs" />
      <Compile Include="Assets\Scripts\RenderLine.cs" />
+     <Compile Include="Assets\Scripts\RodIdentifier.cs" />
+     <Compile Include="Assets\Scripts\RodSwitcher.cs" />
      <Compile Include="Assets\Scripts\SaveSystems.cs" />
      <Compile Include="Assets\Scripts\Shop.cs" />
      <Compile Include="Assets\Scripts\ShopListing.cs" />
      <Compile Include="Assets\Scripts\WaterMovement.cs" />
      <Compile Include="Assets\Scripts\WaterPhysics.cs" />
+     <Compile Include="Assets\Unity-Logs-Viewer\Reporter\MultiKeyDictionary.cs" />
+     <Compile Include="Assets\Unity-Logs-Viewer\Reporter\Reporter.cs" />
+     <Compile Include="Assets\Unity-Logs-Viewer\Reporter\ReporterGUI.cs" />
+     <Compile Include="Assets\Unity-Logs-Viewer\Reporter\ReporterMessageReceiver.cs" />
+     <Compile Include="Assets\Unity-Logs-Viewer\Reporter\Test\Rotate.cs" />
+     <Compile Include="Assets\Unity-Logs-Viewer\Reporter\Test\TestReporter.cs" />
+     <None Include="Assets\Fantasy Skybox FREE\Readme.txt" />
+     <None Include="Assets\Fantasy Skybox FREE\Fog and Ambient reference.txt" />
+     <None Include="Assets\Resources\Mobile-Diffuse.shader" />
+     <None Include="Assets\StreamingAssets\build_info.txt" />
+     <None Include="Assets\Resources\Alpha-Diffuse.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

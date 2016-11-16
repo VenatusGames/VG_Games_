@@ -15,7 +15,7 @@ public class Shop : MonoBehaviour {
 
 
 	void Start(){
-		contentRect.position = Vector3.zero;
+		contentRect.localPosition = Vector3.zero;
 		for (int i = 0; i < toggles.Count; i++) {
 			tabs.Add(new KeyValuePair<Toggle, GameObject>(toggles[i],tabMenus[i]));
 		}
@@ -36,7 +36,7 @@ public class Shop : MonoBehaviour {
 		}
 		ChangeTab();
 		if(!contentRect.gameObject.activeSelf){
-			contentRect.position = Vector3.zero;
+			contentRect.localPosition = Vector3.zero;
 		}
 		if(isOpen && !FindObjectOfType<Cast>().hasCasted)
 			FindObjectOfType<Cast>().canCast = false;
@@ -50,31 +50,36 @@ public class Shop : MonoBehaviour {
 		}else if(FindObjectOfType<Cast>().canCast == false && FindObjectOfType<Cast>().hasCasted == false){
 			FindObjectOfType<Cast>().canCast = true;
 		}
+		contentRect.localPosition = new Vector3(contentRect.localPosition.x,0,contentRect.localPosition.z);
 	}
 
 	public void ChangeTab(){
-		tabs.Find(x => x.Key.isOn).Value.SetActive(true);
+		GameObject cur = tabs.Find(x => x.Key.isOn).Value;
+		cur.SetActive(true);
+		contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x,cur.GetComponent<RectTransform>().sizeDelta.y);
 		foreach(var item in tabs.FindAll(x => !x.Key.isOn)){
 			item.Value.SetActive(false);
 		}
 	}
 
 	public void BuyBait(BaitType bait, int amount){
-		print(bait.ToString() + ":" + amount);
+		if(amount == 0)
+			return;
 		FindObjectOfType<Inventory>().money -= amount * bait.price;
 		FindObjectOfType<Inventory>().AddBait(bait,amount);
 	}
 
-	public void BuyLure(LureType lure, int amount){
-		print(lure.ToString() + ":" + amount);
-		FindObjectOfType<Inventory>().money -= amount * lure.price;
-
+	public void BuyLure(BobberType lure){
+		FindObjectOfType<Inventory>().money -= lure.price;
+		FindObjectOfType<Inventory>().AddBobber(lure);
+		FindObjectOfType<RodSwitcher>().SwitchBobber(lure);
 	}
 
 	public void BuyRod(RodType rod){
 		print(rod.ToString());
 		FindObjectOfType<Inventory>().money -= rod.price;
-
+		FindObjectOfType<Inventory>().AddRod(rod);
+		FindObjectOfType<RodSwitcher>().SwitchRod(rod);
 	}
 
 }

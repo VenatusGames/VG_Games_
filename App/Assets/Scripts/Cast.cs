@@ -5,262 +5,314 @@ using System.Linq;
 using UnityEngine.UI;
 public class Cast : MonoBehaviour {
 	GameObject currentLure;
+
+	//Set These In Inspector
 	public GameObject floatPrefab;
 	public Transform instObj;
-	public Vector3 beginPos,endPos;
-
 	public int maxPower;
-
-	Coroutine curReelCoroutine;
-	Coroutine curCatchCoroutine;
-
-	public bool canCast;
-	public bool castStarted;
-	public bool reelStarted;
-	private float startTime;
-	public float lastSpeed;
-	public float angle;
-
 	public Animator poleAnim;
-
-	public bool catchStarted;
-	public bool canCatch;
-	public Fish caughtFish;
 	public FishDatabase fishDatabase;
+	public List<DetectHover> hovers;
+	public float swipeStrength;
 
-	public bool isInHotspot;
-
+	//Casting variables
+	public bool canCast;
 	public bool hasCasted;
 
-	public List<DetectHover> hovers;
+	private float startTime;
+	private Vector3 beginPos,endPos;
+
+	public bool isInHotspot;
+	public BaitType currentBait;
+
+	//Reeling Variables
+	public bool isReeling;
+	public GameObject reelStick;
+	public float reelSpeed;
+	private Vector3 fishTarget;
+	public float tension;
+
+	//Catching Variables
+	public bool catchStarted;
+	public Fish currentFishToCatch;
+
+	//Coroutine Handling
+	Coroutine curFightCoroutine,curCatchLoopCoroutine,curHookCoroutine;
+
+	public float reelAnimTime = 0f;
+	public GameObject reelControlPanel;
+
+	public bool overControls;
+	public bool exitedMenu;
+	public GameObject tensionSlider;
+	public GameObject floatDirection;
 	void Update(){
-		if(Application.isMobilePlatform){
-			if(Input.touches.Length > 1 || Input.touches.Length < 1) return;
-
-			switch (Input.touches[0].phase) {
-				
-			case TouchPhase.Began:
-				if(canCast){
-					beginPos = Input.touches[0].position;
-					startTime = Time.time;
-					castStarted = true;
-				}else{
-					beginPos = Input.touches[0].position;
-					castStarted = false;
-				}
-				break;
-			case TouchPhase.Stationary:
-				if(castStarted){
-					beginPos = Input.touches[0].position;
-					startTime = Time.time;
-				}
-				break;
-			case TouchPhase.Ended:
-				if(castStarted){
-					if(beginPos.y < Input.touches[0].position.y){
-						bool hoverCheck = true;
-						foreach (var hover in hovers) {
-							if(hover.isDown){
-								hoverCheck = false;
-							}
-						}
-						if(hoverCheck){
-							castStarted = false;
-						}else{
-							poleAnim.SetBool("cast",true);
-							StartCoroutine(StartCast());
-						}
-					}
-				}
-				else
-					StartReel();
-				break;
-
-			default:
-				break;
-			}
+		if(hasCasted){
+			reelControlPanel.SetActive(true);
 		}else{
-			if(Input.GetMouseButtonDown(0)){
-				if(canCast){
-					beginPos = Input.mousePosition;
-					startTime = Time.time;
-					castStarted = true;
-				}else{
-					beginPos = Input.mousePosition;
-					castStarted = false;
-				}
-			}
-			if(Input.GetMouseButtonUp(0)){
-				if(castStarted){
-					if(beginPos.y < Input.mousePosition.y){
-						bool hoverCheck = false;
-						foreach (var hover in hovers) {
-							if(hover.isDown){
-								hoverCheck = true;
-							}
-						}
-						if(hoverCheck){
-							castStarted = false;
-						}else{
-							poleAnim.SetBool("cast",true);
-							StartCoroutine(StartCast());
-						}
-					}
-				}
-				else if(!reelStarted)
-						StartReel();
+			reelControlPanel.SetActive(false);
+		}
+		if(instObj == null){
+			instObj = FindObjectOfType<ConfigurableJoint>().transform;
+		}
+		poleAnim.SetFloat("Blend",reelAnimTime);
+		bool isHovering = false;
+		foreach (var item in hovers) {
+			if(item.isDown){
+				isHovering = true;
 			}
 		}
+		//Controls
+		if(!isHovering && !overControls && !exitedMenu){
+			if(Application.isMobilePlatform){
+				//Mobile Controls
+				if(Input.touches.Length == 1){
+					Touch curTouch = Input.touches[0];
+					if(curTouch.phase == TouchPhase.Began){
+						if(canCast){
+							startTime = Time.time;
+							beginPos = curTouch.position;
+						}
+					}else if(curTouch.phase == TouchPhase.Canceled){
+
+					}else if(curTouch.phase == TouchPhase.Ended){
+						if(canCast){
+							endPos = curTouch.position;
+							if(beginPos.y < endPos.y){
+								float timeTaken = Time.time - startTime;
+								float speed = (Mathf.Clamp(Vector3.Distance(beginPos,endPos) / timeTaken,0,maxPower)/maxPower) * 100;
+								float angle = Mathf.Clamp(Vector2.Angle(Vector2.right,(beginPos-endPos)),45,135);
+								StartCoroutine(CastLure(speed, angle));
+							}
+						}
+					}
+				}
+			}else{
+				//Desktop Controls(for testing)
+				if(Input.GetMouseButtonDown(0)){
+					if(canCast){
+						startTime = Time.time;
+						beginPos = Input.mousePosition;
+					}
+				}else if(Input.GetMouseButtonUp(0)){
+					if(canCast){
+						endPos = Input.mousePosition;
+						if(beginPos.y < endPos.y){
+							float timeTaken = Time.time - startTime;
+							float speed = (Mathf.Clamp(Vector3.Distance(beginPos,endPos) / timeTaken,0,maxPower)/maxPower) * 100;
+							float angle = Mathf.Clamp(Vector2.Angle(Vector2.right,(beginPos-endPos)),45,135);
+							StartCoroutine(CastLure(speed, angle));
+						}
+					}
+				}
+			}
+		}
+
+
+		//Passive Functionality
+		if(isReeling && hasCasted){
+			reelStick.GetComponent<Rigidbody2D>().AddTorque(-7);
+			reelAnimTime = Mathf.Clamp(reelAnimTime+=0.1f,0,1);
+			if(reelSpeed == 0){
+				reelAnimTime = Mathf.Clamp(reelAnimTime-=0.07f,0,1);
+			}
+			currentLure.GetComponent<Rigidbody>().AddForce(((currentLure.transform.position-floatDirection.transform.position).normalized)*reelSpeed/100 * -1);
+		}else{
+			reelAnimTime = Mathf.Clamp(reelAnimTime-=0.1f,0,1);
+		}
+		//Tension Slider
+		float percent = tension / 100f;
+		tensionSlider.transform.localPosition = Vector3.Lerp(new Vector3(-95,0,0),new Vector3(0,0,0),percent);
+		tensionSlider.GetComponent<Image>().color = Color.Lerp(Color.green,Color.red,percent);
+
+		if(hasCasted && isReeling){
+			if(Vector3.Distance(currentLure.transform.position,floatDirection.transform.position) < 0.5f){
+				foreach (var item in hovers) {
+					item.isDown = false;
+				}
+				canCast = true;
+				hasCasted = false;
+				isReeling = false;
+				//Add a fish to this method
+				Catch();
+			}
+		}
+
+		if(isReeling)
+			overControls = true;
+		if(!isReeling && Input.GetMouseButtonUp(0)){
+			overControls = false;
+		}
+		if(!FindObjectOfType<MainMenu>().isOpen){
+			if(Input.GetMouseButtonUp(0)){
+				exitedMenu = false;
+			}
+		}
+
 	}
 
 	void FixedUpdate(){
-		if(currentLure)
-		if(Physics.OverlapSphere(currentLure.transform.position,0.1f).Length > 0){
+		if(currentLure){
+			if(Physics.OverlapSphere(currentLure.transform.position,0.1f).Length > 0){
 				isInHotspot = true;
 			}else{
 				isInHotspot = false;
 			}
-	}
-
-	IEnumerator StartCast(){
-		if(curReelCoroutine != null)
-			StopCoroutine(curReelCoroutine);
-		poleAnim.SetBool("reel",false);
-		if(castStarted){
-			if(Application.isMobilePlatform){
-			endPos = Input.touches[0].position;
-				if(endPos.y > beginPos.y){
-					float timeToRelease = Time.time - startTime;
-					lastSpeed = Mathf.Clamp(Vector3.Distance(beginPos,endPos) / timeToRelease,0,maxPower);
-					lastSpeed = (lastSpeed / maxPower) * 100;
-					Vector2 swipe = beginPos - endPos;
-					angle = Vector2.Angle(Vector2.right,swipe);
-					angle = Mathf.Clamp(Vector2.Angle(Vector2.right,swipe),45,135);
-					yield return new WaitForSeconds(0.4f);
-					ThrowFloat(angle,Mathf.RoundToInt(lastSpeed));
-				}
-			}else{
-				endPos = Input.mousePosition;
-				if(endPos.y > beginPos.y){
-					float timeToRelease = Time.time - startTime;
-					lastSpeed = Mathf.Clamp(Vector3.Distance(beginPos,endPos) / timeToRelease,0,maxPower);
-					lastSpeed = (lastSpeed / maxPower) * 100;
-					Vector2 swipe = beginPos - endPos;
-					angle = Mathf.Clamp(Vector2.Angle(Vector2.right,swipe),45,135);
-					yield return new WaitForSeconds(0.4f);
-					ThrowFloat(angle,Mathf.RoundToInt(lastSpeed));
-				}
-			}
 		}
-		beginPos = Vector3.zero;
-		endPos = Vector3.zero;
-		castStarted = false;
 	}
 
-	void ThrowFloat(float angle, int power){
+	IEnumerator CatchLoop(){
+		yield return new WaitForSeconds(4);
+		catchStarted = false;
+		while (!catchStarted) {
+			if(Mathf.FloorToInt(Random.Range(0f,10f - currentBait.hookChanceBuff)) == 0){
+				curHookCoroutine =	(Coroutine)StartCoroutine(Hooking(FindObjectOfType<FishDatabase>().GetRandomFish()));
+			}
+			if(isInHotspot)
+				yield return new WaitForSeconds(0.25f);
+			else
+				yield return new WaitForSeconds(1f);
+		}
+	}
+
+	IEnumerator CastLure(float speed, float angle){
+		yield return new WaitForEndOfFrame();
 		canCast = false;
+		poleAnim.SetBool("cast",true);
+		poleAnim.SetBool("reel",false);
+		currentFishToCatch = null;
+		//Throw the bobber
+		yield return new WaitForSeconds(0.4f);
 		hasCasted = true;
-		power = Mathf.Clamp(power,10,90);
-		Destroy(currentLure);
 		currentLure = (GameObject)Instantiate(floatPrefab,instObj.position,floatPrefab.transform.rotation);
 		ConfigurableJoint joint = instObj.GetComponent<ConfigurableJoint>();
 		Rigidbody lureRigid = currentLure.GetComponent<Rigidbody>();
 		joint.connectedBody = lureRigid;
 		currentLure.transform.Rotate(new Vector3(0,angle,0));
-		lureRigid.AddRelativeForce(new Vector3(0,power*2,-power * 3));
+		lureRigid.AddRelativeForce(new Vector3(0,speed*2,-speed * 3));
 		FindObjectOfType<RenderLine>().lure = currentLure;
-		canCast = false;
-		Invoke("StartCatchLoop",5);
+		curCatchLoopCoroutine = (Coroutine)StartCoroutine(CatchLoop());
 	}
 
-	void StartReel(){
-		if(Application.isMobilePlatform){
-			endPos = Input.touches[0].position;
-			if(endPos.y < beginPos.y){
-				poleAnim.SetBool("reel",true);
-				poleAnim.SetBool("cast",false);
-				CancelInvoke();
-				if(curReelCoroutine != null){
-					StopCoroutine(curReelCoroutine);
-				}
-				curReelCoroutine = StartCoroutine(ReelIn(canCatch));
-			}
-		}else{
-			endPos = Input.mousePosition;
-			if(endPos.y < beginPos.y){
-				poleAnim.SetBool("cast",false);
-				poleAnim.SetBool("reel",true);
-				CancelInvoke();
-				if(curReelCoroutine != null){
-					StopCoroutine(curReelCoroutine);
-				}
-				curReelCoroutine = StartCoroutine(ReelIn(canCatch));
-			}
-		}
-	}
-
-	void StartCatchLoop(){
-		if(Random.Range(0,4) == 1 && !catchStarted){
-			curCatchCoroutine = StartCoroutine(CatchMinigame(fishDatabase.GetRandomFish()));
-		}
-		if(!isInHotspot)
-			Invoke("StartCatchLoop",Random.Range(1f,2f));
-		else
-			Invoke("StartCatchLoop",Random.Range(0.5f,1f));
-	}
-
-	IEnumerator CatchMinigame(Fish fish){
+	IEnumerator Hooking(Fish fish){
 		catchStarted = true;
 		float startTime = Time.time;
-		float bobTime = Random.Range(fish.minBobTime,fish.maxBobTime);
-		float catchTime = Random.Range(fish.minCatchTime,fish.maxCatchTime);
-		catchTime = bobTime + catchTime;
+		bool willCatch = Random.Range(0f,1f) > fish.catchChance;
+
 		WaterPhysics water = FindObjectOfType<WaterPhysics>();
 		float startLevel = water.waterLevel;
+		float catchTime = Random.Range(1f,3f);
 
-		while(Time.time-startTime < bobTime){
+		while(Time.time-startTime < catchTime){
 			water.waterLevel -= 0.1f;
+			if(isReeling){
+				water.waterLevel = startLevel;
+				willCatch = false;
+				break;
+			}
 			yield return new WaitForSeconds(Random.Range(0.2f,0.4f));
+			if(isReeling){
+				water.waterLevel = startLevel;
+				willCatch = false;
+				curCatchLoopCoroutine = (Coroutine)StartCoroutine(CatchLoop());
+				break;
+			}
 			water.waterLevel += 0.1f;
 			yield return new WaitForSeconds(Random.Range(0.2f,0.4f));
 		}
-		while (Time.time-startTime < catchTime) {
-			water.waterLevel = startLevel - 0.2f;
-			canCatch = true;
-			caughtFish = fish;
-			yield return new WaitForEndOfFrame();
-		}
-		canCatch = false;
-		if(!reelStarted)
-			caughtFish = null;
-		catchStarted = false;
-		water.waterLevel = startLevel;
 
+		if(willCatch){
+			currentFishToCatch = fish;
+			curFightCoroutine = (Coroutine)StartCoroutine(FishFight(fish));
+			water.waterLevel = startLevel - 0.2f;
+		}else{
+			water.waterLevel = startLevel;
+			catchStarted = false;
+			currentFishToCatch = null;
+			curCatchLoopCoroutine = (Coroutine)StartCoroutine(CatchLoop());
+		}
+		yield return new WaitForEndOfFrame();
 	}
 
-	IEnumerator ReelIn(bool didCatch){
-		if(curCatchCoroutine != null)
-			StopCoroutine(curCatchCoroutine);
-		if(FindObjectOfType<MainMenu>().isOpen){
-			yield break;
-		}
-		FindObjectOfType<WaterPhysics>().waterLevel = 0.6f;
-		reelStarted = true;
-		while(Vector3.Distance(currentLure.transform.position,new Vector3(instObj.position.x,1.14f,instObj.gameObject.transform.position.z)) > 0.1f){
-			float step = 3 * Time.deltaTime;
-			currentLure.transform.position = Vector3.MoveTowards(currentLure.transform.position,new Vector3(instObj.gameObject.transform.position.x,1.14f,instObj.gameObject.transform.position.z),step);
+	IEnumerator FishFight(Fish fish){
+		Vector3 posToFightTo = new Vector3(Random.Range(-9f,9f),1.1f,11.85f);
+		int reset = 0;
+		bool willFight = true;
+		bool stop = false;
+		Rigidbody lureRigid = currentLure.GetComponent<Rigidbody>();
+		while(Vector3.Distance(currentLure.transform.position,posToFightTo) > 2f || stop){
+			if(willFight){
+				lureRigid.AddForce((posToFightTo-currentLure.transform.position).normalized*Time.deltaTime*(fish.strength+20));
+				float pull = 0f;
+				if(fish.strength == 0)
+					pull = 1f;
+				else
+					pull = fish.strength;
+				if(isReeling){
+					tension = Mathf.Clamp(tension += 0.5f,0,100);
+				}
+				tension = Mathf.Clamp(tension += (pull/4),0,100);
+				reelStick.GetComponent<Rigidbody2D>().AddTorque(5);
+			}else{
+				tension = Mathf.Clamp(tension -= 0.5f,0,100);
+			}
+			if(tension >= 100 && isReeling){
+				Break();
+				stop = true;
+
+			}
+			reset++;
+			if(reset % 50 == 0){
+				willFight = Random.value > 0.5f;
+			}
+			if(reset == 200){
+				posToFightTo = new Vector3(Random.Range(-9f,9f),1.1f,11.85f);
+				reset = 0;
+			}
 			yield return new WaitForEndOfFrame();
 		}
-		if(didCatch){
-			FindObjectOfType<PopupController>().CreatePopup(caughtFish);
-		}else{
-			canCast = true;
+		if(!stop){
+			Break();
 		}
-		hasCasted = false;
-		reelStarted = false;
-		caughtFish = null;
-		canCatch = false;
-		catchStarted = false;
+	}
+
+	void Catch(){
+		if(currentFishToCatch == null || currentFishToCatch.fishName == null){
+			currentFishToCatch = null;
+		}else{
+			StartCoroutine(FindObjectOfType<PopupController>().CreateFishPopup(currentFishToCatch));
+			currentFishToCatch = null;
+		}
+		ResetRod();
+	}
+
+	void Break(){
+		ResetRod();
+	}
+
+	public void ResetRod(){
+		if(curCatchLoopCoroutine != null)
+			StopCoroutine(curCatchLoopCoroutine);
+		if(curFightCoroutine != null)
+			StopCoroutine(curFightCoroutine);
+		if(curHookCoroutine != null)
+			StopCoroutine(curHookCoroutine);
+		tension = 0f;
+		hovers.ForEach(x => x.isDown = false);
+		poleAnim.SetBool("cast",false);
+		poleAnim.SetBool("reel",false);
 		Destroy(currentLure);
+		currentFishToCatch = null;
+		canCast = true;
+		isReeling = false;
+		catchStarted = false;
+		isInHotspot = false;
+		hasCasted = false;
+	}
+	public void pointerDown(){
+		isReeling = true;
+	}
+	public void pointerUp(){
+		isReeling = false;
 	}
 }

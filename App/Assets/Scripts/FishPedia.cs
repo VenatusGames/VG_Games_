@@ -6,19 +6,26 @@ using UnityEngine.UI;
 public class FishPedia : MonoBehaviour {
 
 	public bool isOpened = false;
+	public bool isBioOpen = false;
 	public GameObject fishPedia;
 	public FishList fishList = new FishList();
-	public RectTransform fishPediaRect;
 
 	public GameObject fishPediaListingPrefab;
-	public List<FishPediaListing> listings = new List<FishPediaListing>();
+	public List<FishPediaListing> listings;
 	public GameObject uiCanvas;
 	int oldMask;
 	MainMenu menu;
+	public GameObject spawnedFish;
+
+	//Bio Variables
+	public GameObject bioPage;
+	public int bioFishID;
+	public Text bioName,bioLocation,bioDesc,bioWeight,bioCatches;
+
+
 	void Start(){
 		oldMask = Camera.main.cullingMask;
 		menu = FindObjectOfType<MainMenu>();
-		fishPediaRect.localPosition = new Vector3(0,0,0);
 		if(System.IO.File.Exists(Application.persistentDataPath + @"\fishpedia.json")){
 			string jsonSaveString = System.IO.File.ReadAllText(Application.persistentDataPath + @"\fishpedia.json");
 			JsonUtility.FromJsonOverwrite(jsonSaveString,fishList);
@@ -28,11 +35,6 @@ public class FishPedia : MonoBehaviour {
 		isOpened = false;
 		SaveFishpedia();
 
-		Vector2 newSize = fishPediaRect.sizeDelta;
-		newSize.y = (30)+(FindObjectOfType<FishDatabase>().fish.Count * 30);
-		newSize.y = Mathf.Clamp(newSize.y,183,Mathf.Infinity);
-		fishPediaRect.sizeDelta = newSize;
-
 		FishDatabase database = FindObjectOfType<FishDatabase>();
 		List<Fish> oldDatabaseFish = database.fish;
 		List<Fish> databaseFish = new List<Fish>();
@@ -41,35 +43,9 @@ public class FishPedia : MonoBehaviour {
 				databaseFish.Add(fish);
 			}
 		}
-		int y = 0;
-		int z = 0;
-		for (int i = 0; i < databaseFish.Count; i++) {
-			GameObject cur = (GameObject)Instantiate(fishPediaListingPrefab,fishPediaRect.transform);
-			cur.GetComponent<RectTransform>().anchoredPosition3D = new Vector3(10+(z*110),-35+(y*-110),0);
-			cur.GetComponent<RectTransform>().localEulerAngles = Vector3.zero;
-			cur.GetComponent<RectTransform>().localScale = Vector3.one;
-			cur.GetComponent<FishPediaListing>().fish = new FishpediaFish(databaseFish[i].fishName,0);
-			cur.transform.FindChild("Border").GetComponent<Image>().color = databaseFish[i].rarityColour;
-			GameObject child = cur.transform.FindChild("FishPosition").gameObject;
-			GameObject fish = (GameObject)Instantiate(databaseFish[i].fishPrefab,child.GetComponent<RectTransform>().position,cur.transform.rotation,child.transform);
-			fish.GetComponentInChildren<MeshRenderer>().gameObject.layer = LayerMask.NameToLayer("UI");
-			fish.transform.localScale = new Vector3(fish.transform.localScale.x * 50f,fish.transform.localScale.y * 50f,fish.transform.localScale.z * 50f);
-			fish.transform.localPosition = new Vector3(0,0,-40);
-			listings.Add(cur.GetComponent<FishPediaListing>());
-			z++;
-			int mod = i + 1;
-			if(mod % 5 == 0){
-				y++;
-				z = 0;
-			}
-		}
-		List<FishpediaFish> bestFish = UniqueFishArray(fishList.fishList);
-		foreach (var item in bestFish) {
-			if(listings.Find(x => x.fish.fishName == item.fishName)){
-				FishPediaListing listing = listings.Find(x => x.fish.fishName == item.fishName);
-				listing.isCaught = true;
-				listing.fish.weight = item.weight;
-			}
+		listings = FindObjectsOfType<FishPediaListing>().ToList();
+		foreach (var item in listings) {
+			item.UpdateListing();
 		}
 	}
 
@@ -94,6 +70,50 @@ public class FishPedia : MonoBehaviour {
 			Camera.main.orthographic = false;
 			Camera.main.cullingMask = oldMask;
 		}
+		if(spawnedFish){
+			spawnedFish.transform.Rotate(new Vector3(0,1,0));
+		}
+	}
+
+	public void ToggleBio(int id = 0) {
+		if(!isBioOpen){
+			if(FindObjectOfType<FishPedia>().fishList.fishList.Exists(x => x.fishName == FindObjectOfType<FishDatabase>().fish[id].fishName)) {
+				Destroy(spawnedFish);
+				isBioOpen = !isBioOpen;
+				bioPage.SetActive(!bioPage.activeSelf);
+				bioFishID = id;
+				if(isBioOpen){
+					foreach (var item in listings) {
+						item.gameObject.SetActive(false);
+					}
+					bioPage.transform.FindChild("FishPosition").transform.FindChild("Border").GetComponent<Image>().color = FindObjectOfType<FishDatabase>().fish[bioFishID].rarityColour;
+					GameObject child = bioPage.transform.FindChild("FishPosition").gameObject;
+					spawnedFish = (GameObject)Instantiate(FindObjectOfType<FishDatabase>().fish[bioFishID].fishPrefab,child.GetComponent<RectTransform>().position,child.transform.rotation,child.transform);
+					spawnedFish.GetComponentInChildren<MeshRenderer>().gameObject.layer = LayerMask.NameToLayer("UI");
+					spawnedFish.transform.localScale = new Vector3(spawnedFish.transform.localScale.x * 50f,spawnedFish.transform.localScale.y * 50f,spawnedFish.transform.localScale.z * 50f);
+					spawnedFish.transform.localPosition = new Vector3(0,0,-500);
+
+					bioName.text = FindObjectOfType<FishDatabase>().fish[id].fishName;
+					bioLocation.text = CapFirstLetter(FindObjectOfType<FishDatabase>().fish[id].map.ToString());
+					bioDesc.text = FindObjectOfType<FishDatabase>().fish[id].bio;
+					bioWeight.text = "Best Weight: "+ UniqueFishArray(fishList.fishList).Find(x => x.fishName == FindObjectOfType<FishDatabase>().fish[id].fishName).weight+"Kg";
+					bioCatches.text = "Caught "+FindObjectOfType<FishPedia>().fishList.fishList.FindAll(x => x.fishName == FindObjectOfType<FishDatabase>().fish[id].fishName).Count+" times";
+
+				}else{
+					foreach (var item in listings) {
+						item.gameObject.SetActive(true);
+					}
+				}
+			}
+		}else{
+			isBioOpen = !isBioOpen;
+			bioPage.SetActive(!bioPage.activeSelf);
+			if(!isBioOpen){
+				foreach (var item in listings) {
+					item.gameObject.SetActive(true);
+				}
+			}
+		}
 	}
 
 	public void Toggle() {
@@ -105,34 +125,13 @@ public class FishPedia : MonoBehaviour {
 			FindObjectOfType<Cast>().canCast = true;
 		}
 
+
 		if(isOpened){
-			List<FishpediaFish> bestFish = UniqueFishArray(fishList.fishList);
-
-			foreach (var fish in bestFish) {
-				FishPediaListing listing = null;
-				foreach (var item in listings) {
-					if(item.fish.fishName == fish.fishName){
-						listing = item;
-					}
-				}
-				if(listing != null){
-					if(!listing.isCaught){
-						listing.isCaught = true;
-					}
-
-					listing.UpdateListing(fish.weight);
-				}else{
-					print(fish.fishName);
-				}
-			}
-
+			listings = FindObjectsOfType<FishPediaListing>().ToList();
 			foreach (var item in listings) {
-				if(!item.isCaught){
-					item.UpdateListing(0);
-				}
+				item.UpdateListing();
 			}
 
-			//FishDatabase database = FindObjectOfType<FishDatabase>();
 		}
 	}
 
@@ -159,6 +158,10 @@ public class FishPedia : MonoBehaviour {
 		}
 
 		return returnList;
+	}
+
+	public string CapFirstLetter(string s){
+		return char.ToUpper(s[0]) + s.Substring(1);
 	}
 
 	public void SaveFishpedia(){
