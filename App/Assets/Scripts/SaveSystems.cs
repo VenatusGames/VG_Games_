@@ -83,46 +83,62 @@ public class InventorySave {
 		inv.bobbers = LoadBobbers(save);
 		inv.ownedMaps = LoadMaps(save);
 	}
-	List<BaitType> LoadBaits(InventorySave save){
-		List<BaitType> loadedBaits = new List<BaitType>();
-
-		for (int i = 0; i < save.baitIDs.Count; i++) {
-			loadedBaits.Add(Object.FindObjectOfType<ItemDatabase>().baits[save.baitIDs[i]]);
-		}
-		for (int i = 0; i < save.baitAmounts.Count; i++) {
-			loadedBaits[i].amount = save.baitAmounts[i];
-		}
-
+    List<BaitType> LoadBaits(InventorySave save) {
+        List<BaitType> loadedBaits = new List<BaitType>();
+        if (save.baitIDs.Count > 0)
+        {
+            for (int i = 0; i < save.baitIDs.Count; i++)
+            {
+                loadedBaits.Add(Object.FindObjectOfType<ItemDatabase>().baits[save.baitIDs[i]]);
+            }
+            for (int i = 0; i < save.baitAmounts.Count; i++)
+            {
+                loadedBaits[i].amount = save.baitAmounts[i];
+            }
+        }
 		return loadedBaits;
 	}
 	List<RodType> LoadRods(InventorySave save){
 		List<RodType> loadedRods = new List<RodType>();
-
-		foreach (var item in save.rods) {
-			loadedRods.Add(Object.FindObjectOfType<ItemDatabase>().rods[item]);
-		}
-		if(loadedRods.Count > 0)
-			loadedRods.Find(x => x.ID == save.equippedRod).isEquipped = true;
-
+        if (save.rods.Count > 0)
+        {
+            foreach (var item in save.rods)
+            {
+                loadedRods.Add(Object.FindObjectOfType<ItemDatabase>().rods[item]);
+            }
+            if (loadedRods.Count > 0)
+                loadedRods.Find(x => x.ID == save.equippedRod).isEquipped = true;
+        }
 		return loadedRods;
 	}
 	List<BobberType> LoadBobbers(InventorySave save){
 		List<BobberType> loadedBobbers = new List<BobberType>();
-		foreach (var item in save.bobbers) {
-			loadedBobbers.Add(Object.FindObjectOfType<ItemDatabase>().bobbers[item]);
-		}
-		try {
-			loadedBobbers.Find(x => x.ID == save.equippedBobber).isEquipped = true;
-		} catch (System.Exception ex) {
-			Debug.Log(ex);
-		}
+        if (save.bobbers.Count > 0)
+        {
+            foreach (var item in save.bobbers)
+            {
+                loadedBobbers.Add(Object.FindObjectOfType<ItemDatabase>().bobbers[item]);
+            }
+            try
+            {
+                loadedBobbers.Find(x => x.ID == save.equippedBobber).isEquipped = true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Log(ex);
+            }
+        }
 		return loadedBobbers;
 	}
 	List<MapType> LoadMaps(InventorySave save){
 		List<MapType> loadedMaps = new List<MapType>();
-		foreach (var item in save.maps) {
-			loadedMaps.Add(Object.FindObjectOfType<ItemDatabase>().maps[item]);
-		}
+        if (save.maps.Count > 0)
+        {
+            foreach (var item in save.maps)
+            {
+                loadedMaps.Add(Object.FindObjectOfType<ItemDatabase>().maps[item]);
+            }
+        }
 		return loadedMaps;
 	}
 }
